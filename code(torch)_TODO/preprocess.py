@@ -6,7 +6,7 @@ import os
 import random
 import numpy as np
 from PIL import Image
-import tensorflow as tf
+import torch
 import hyperparameters as hp
 
 
