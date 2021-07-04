@@ -43,11 +43,7 @@ class YourModel(tf.keras.Model):
 
     def __init__(self):
         super(YourModel, self).__init__()
-        # resnet-18
         self.layer_dims = [2, 2, 2, 2]
-
-        # resnet-34
-        # self.layer_dims = [3, 4, 6, 3]
         self.num_classes = 15
 
         # Optimizer
@@ -60,22 +56,19 @@ class YourModel(tf.keras.Model):
             layers.BatchNormalization(),
             layers.Activation('relu'),
             layers.MaxPool2D(pool_size=(2, 2), strides=(1, 1), padding='same'),
-            # layers.Dropout(0.2)  # special drop out layer
         ])
         # resblock
         self.layer1 = self.build_resblock(64, self.layer_dims[0])
         self.layer2 = self.build_resblock(128, self.layer_dims[1], stride=2)
         self.layer3 = self.build_resblock(256, self.layer_dims[2], stride=2)
-        self.layer4 = self.build_resblock(512, self.layer_dims[3], stride=2)
 
         self.head = [
-            # layers.Dropout(rate=0.15),
-            layers.Conv2D(256, 1, 1, padding='same', activation='relu'),
+            layers.Conv2D(128, 1, 1, padding='same', activation='relu'),
             layers.GlobalAveragePooling2D(),
-            layers.Dense(256, activation="relu"),
+            layers.Dense(128, activation="relu"),
             layers.BatchNormalization(),
-            layers.Dropout(rate=0.5),
-            layers.Dense(self.num_classes, activation="softmax"),
+            layers.Dropout(rate=0.4),
+            layers.Dense(15, activation="softmax"),
         ]
 
         self.architecture = [
@@ -83,7 +76,6 @@ class YourModel(tf.keras.Model):
             self.layer1,
             self.layer2,
             self.layer3,
-            self.layer4,
         ] + self.head
 
 
@@ -99,9 +91,7 @@ class YourModel(tf.keras.Model):
 
     def build_resblock(self, filter_num, blocks, stride=1):
         res_blocks = Sequential()
-        # may down sample
         res_blocks.add(BasicBlock(filter_num, stride))
-        # just down sample one time
         for pre in range(1, blocks):
             res_blocks.add(BasicBlock(filter_num, stride=1))
         return res_blocks
@@ -112,16 +102,6 @@ class YourModel(tf.keras.Model):
 
         return tf.keras.losses.sparse_categorical_crossentropy(
             labels, predictions, from_logits=False)
-        #       While the choice of what activation functions you use
-        #             is up to you, the final layer must use the softmax
-        #             activation function so that the output of your network
-        #             is a probability distribution.
-        #
-        #       Note: Flatten is a very useful layer. You shouldn't have to
-        #             explicitly reshape any tensors anywhere in your network.
-        #
-        # ====================================================================
-
 
     def call(self, img):
         """ Passes input image through the network. """
@@ -133,9 +113,7 @@ class YourModel(tf.keras.Model):
 
     def build_resblock(self, filter_num, blocks, stride=1):
         res_blocks = Sequential()
-        # may down sample
         res_blocks.add(BasicBlock(filter_num, stride))
-        # just down sample one time
         for pre in range(1, blocks):
             res_blocks.add(BasicBlock(filter_num, stride=1))
         return res_blocks

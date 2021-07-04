@@ -82,7 +82,7 @@ class Datasets():
         #       self.mean and self.std respectively.
         # ==========================================================
 
-        self.mean = np.mean(data_sample, axis=(0, 1, 2))
+        self.mean = np.mean(data_sample, axis=(2, 0, 1))
         self.std = np.std(data_sample, axis=(0, 1, 2))
 
         # ==========================================================
@@ -175,12 +175,10 @@ class Datasets():
 
             data_gen = tf.keras.preprocessing.image.ImageDataGenerator(
                 preprocessing_function=self.preprocess_fn,
-                horizontal_flip=True,
-                vertical_flip=True,
-                rotation_range=10,
+                rotation_range=15,
                 zoom_range=0.1,
-                width_shift_range=0.1,
-                height_shift_range=0.1,
+                width_shift_range=0.2,
+                height_shift_range=0.2,
             )
             # ============================================================
         else:
