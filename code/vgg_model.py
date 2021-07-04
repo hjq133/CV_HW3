@@ -4,7 +4,7 @@ Project 3 - Convolutional Neural Networks for Image Classification
 
 import tensorflow as tf
 import hyperparameters as hp
-from tensorflow.keras.layers import Conv2D, MaxPool2D, GlobalAveragePooling2D, Dense, Activation, Flatten
+from tensorflow.keras.layers import Conv2D, MaxPool2D, GlobalAveragePooling2D, Dense, Activation, Dropout
 
 
 class VGGModel(tf.keras.Model):
@@ -54,7 +54,9 @@ class VGGModel(tf.keras.Model):
         #       Hint: The layers Flatten and Dense are essential here.
 
         self.head = [
-            Flatten(),
+            Conv2D(256, 1, 1, padding='same', activation='relu'),
+            GlobalAveragePooling2D(),
+            Dropout(rate=0.5),
             Dense(15),
             Activation('softmax'),
         ]

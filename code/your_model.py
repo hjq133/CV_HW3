@@ -3,6 +3,7 @@ Project 3 - Convolutional Neural Networks for Image Classification
 """
 
 import tensorflow as tf
+from tensorflow.python.ops.gen_nn_ops import Conv2D
 import hyperparameters as hp
 from tensorflow.keras import layers, Sequential
 
@@ -43,10 +44,10 @@ class YourModel(tf.keras.Model):
     def __init__(self):
         super(YourModel, self).__init__()
         # resnet-18
-        # self.layer_dims = [2, 2, 2, 2]
+        self.layer_dims = [2, 2, 2, 2]
 
         # resnet-34
-        self.layer_dims = [3, 4, 6, 3]
+        # self.layer_dims = [3, 4, 6, 3]
         self.num_classes = 15
 
         # Optimizer
@@ -67,8 +68,15 @@ class YourModel(tf.keras.Model):
         self.layer3 = self.build_resblock(256, self.layer_dims[2], stride=2)
         self.layer4 = self.build_resblock(512, self.layer_dims[3], stride=2)
 
-        self.avgpool = layers.GlobalAveragePooling2D()
-        self.fc = layers.Dense(self.num_classes)
+        self.head = [
+            # layers.Dropout(rate=0.15),
+            layers.Conv2D(256, 1, 1, padding='same', activation='relu'),
+            layers.GlobalAveragePooling2D(),
+            layers.Dense(256, activation="relu"),
+            layers.BatchNormalization(),
+            layers.Dropout(rate=0.5),
+            layers.Dense(self.num_classes, activation="softmax"),
+        ]
 
         self.architecture = [
             self.stem,
@@ -76,17 +84,15 @@ class YourModel(tf.keras.Model):
             self.layer2,
             self.layer3,
             self.layer4,
-            self.avgpool,
-            self.fc,
-            layers.Activation('softmax'),
-        ]
+        ] + self.head
+
 
         # ====================================================================
 
     def call(self, img):
         """ Passes input image through the network. """
 
-        for layer in self.architecture:
+        for layer in self.layer_nn:
             img = layer(img)
 
         return img
@@ -116,18 +122,6 @@ class YourModel(tf.keras.Model):
         #
         # ====================================================================
 
-        self.architecture = [
-            self.stem,
-            self.layer1,
-            self.layer2,
-            self.layer3,
-            self.layer4,
-            self.avgpool,
-            self.fc,
-            layers.Activation('softmax'),
-        ]
-
-        # ====================================================================
 
     def call(self, img):
         """ Passes input image through the network. """
